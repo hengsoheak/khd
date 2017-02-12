@@ -1,0 +1,50 @@
+#This is virtual host for phareakboth
+
+server {
+
+    listen 80;
+
+    root /home/phareakboth/phareakboth_website/public_html/public;
+    index index.php index.html;
+
+    server_name phareakboth.com www.phareakboth.com;
+
+    access_log /home/phareakboth/phareakboth_website/both_access.log;
+    error_log  /home/phareakboth/phareakboth_website/both_error.log;
+
+    proxy_connect_timeout 300s;
+    proxy_read_timeout 300s;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+   location /gotocamadmin {
+
+          root /home/phareakboth/phareakboth_website/public_html;
+            location ~ ^/gotocamadmin/(.+\.php)$ {
+                    try_files $uri =404;
+                    root /home/phareakboth/phareakboth_website/public_html;
+                    fastcgi_pass unix:var/run/php/php7.0-fpm-phareakboth.sock;
+                    fastcgi_index index.php;
+                    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                    include fastcgi_params;
+            }
+            location ~* ^/gotocamadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+                    root /home/phareakboth/phareakboth_website/public_html;
+            }
+
+        }
+
+    location ~ \.php$ {
+
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:var/run/php/php7.0-fpm-phareakboth.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+
+
